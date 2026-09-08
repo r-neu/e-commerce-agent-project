@@ -18,7 +18,7 @@ The Shopping Assistant agent starts with that rough description. The shopper can
 
 BGE-M3 creates an embedding for each product in the 100-product demo catalog. For a product question, the agent retrieves the eight closest matches. Their title, brand, price, features, and rating are passed to the fine-tuned Llama model, which writes the answer.
 
-For shipping and returns, the agent reads the policy for the relevant product category from JSON files. Gradio provides the chat interface, and `llama.cpp` runs the quantized model locally.
+For shipping and returns, the agent reads the policy for the relevant product category from JSON files. Gradio provides the chat interface, and `llama.cpp` runs the quantized model.
 
 ## Product decisions
 
@@ -26,7 +26,7 @@ I limited the first version of the agent to questions that come before a purchas
 
 I kept the live catalog data outside the model. The agent retrieves product details when a question arrives, so changing a price does not require another fine-tuning run.
 
-Shipping and return answers come directly from policy files. I did not want a generated answer to alter a store rule.
+Shipping and return answers come directly from policy files.
 
 ## Training
 
