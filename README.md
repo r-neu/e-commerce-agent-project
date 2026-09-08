@@ -1,42 +1,44 @@
 # Shopping Assistant
 
-Shopping Assistant helps online shoppers search a product catalog in everyday language. They can ask for recommendations, compare product details, and check shipping or return policies in the same conversation.
+Shopping Assistant is an e-commerce agent for an online product catalog. A shopper describes what they need in plain language, and the agent looks for matching products. It also answers questions about shipping and returns.
 
 ## Why this problem
 
-Product search works well when shoppers know the product name or category. It is less useful when a request combines a budget, specific features, and a minimum rating. A query such as “show me a well-rated cookware set under $300” may take several searches.
+Shoppers do not always begin with a product name or a clear set of filters. Sometimes they only have a rough idea and work out the details as they browse. At that stage, it can be difficult to know what to search for or which filters to use.
 
-The shopper describes what they need, and the assistant finds products that match the request. Shipping and return information is included in the same flow because it can affect the final choice.
+The Shopping Assistant agent starts with that rough description. The shopper can add more detail after seeing the first set of results.
 
 ## User flow
 
-1. A shopper asks a product, shipping, or return question.
-2. The system searches the catalog or retrieves the relevant store policy.
-3. The shopper receives an answer and can refine the request in the same chat.
+1. A shopper describes what they need.
+2. The agent searches the catalog and returns a shortlist.
+3. The shopper adds more detail to narrow the results or asks about shipping and returns.
 
 ## Technical workflow
 
-Product requests are embedded with BGE-M3 and compared with the 100-product demo catalog. The eight closest product records are added to the prompt with their title, brand, price, features, and rating. The fine-tuned Llama model writes the answer from those records.
+BGE-M3 creates an embedding for each product in the 100-product demo catalog. For a product question, the agent retrieves the eight closest matches. Their title, brand, price, features, and rating are passed to the fine-tuned Llama model, which writes the answer.
 
-Shipping and return questions use category-based lookups from structured policy files. The Gradio interface streams each response, and `llama.cpp` runs the quantized model locally.
+For shipping and returns, the agent reads the policy for the relevant product category from JSON files. Gradio provides the chat interface, and `llama.cpp` runs the quantized model locally.
 
 ## Product decisions
 
-I focused the MVP on product discovery and common policy questions before purchase. Checkout, payment, order tracking, and account support need separate commerce systems, so I left them out.
+I limited the first version of the agent to questions that come before a purchase. I left out checkout, payment, order tracking, and account support because they require customer, payment, or order data that is not part of this prototype.
 
-I used fine-tuning to improve how the model handles shopping questions. The live assistant still retrieves product facts from the catalog for every request. Shipping and return answers come from policy files. 
+I kept the live catalog data outside the model. The agent retrieves product details when a question arrives, so changing a price does not require another fine-tuning run.
+
+Shipping and return answers come directly from policy files. I did not want a generated answer to alter a store rule.
 
 ## Training
 
-I fine-tuned `Meta-Llama-3.1-8B-Instruct` with QLoRA. The 120,000-example training set contains 48,000 product Q&A examples and 72,000 review-based tasks. Those tasks cover choosing one product, building a shortlist, rejecting mismatched options, and asking for clarification.
+I fine-tuned `Meta-Llama-3.1-8B-Instruct` with QLoRA. The training file contains 120,000 examples. It combines 48,000 product Q&A conversations with 72,000 review-based tasks for product selection and clarification.
 
 I then merged the adapter with the base model and converted it to a Q4_K_M GGUF file for local inference.
 
 ## Testing
 
-The automated test set contains 100 questions covering price, brand, rating, features, shipping, returns, and general product queries. The saved run returned a response for every question. Shipping scored highest. Brand and rating questions were the weakest areas.
+The test set contains 100 questions about price, brand, rating, features, shipping, returns, and general product information. The saved run produced a response for every question. Accuracy was highest for shipping questions and lowest for brand and rating questions.
 
-A separate set of 20 edge cases covers greetings, ambiguous wording, and unsupported requests.
+Another 20 cases cover greetings, ambiguous wording, and unsupported requests.
 
 Run a small test sample after launching the app once:
 
@@ -50,7 +52,7 @@ Python, Llama 3.1, QLoRA, `llama.cpp`, BGE-M3, Sentence Transformers, scikit-lea
 
 ## Run locally
 
-The current `MODEL_CONFIG` is tuned for Apple Silicon. Other hardware may need different GPU and thread settings.
+The current `MODEL_CONFIG` is set up for Apple Silicon. Other hardware may need different GPU and thread settings.
 
 ```bash
 python3 -m venv .venv
