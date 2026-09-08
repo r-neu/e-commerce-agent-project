@@ -24,9 +24,7 @@ Shipping and return questions use category-based lookups from structured policy 
 
 I focused the MVP on product discovery and common policy questions before purchase. Checkout, payment, order tracking, and account support need separate commerce systems, so I left them out.
 
-I used fine-tuning to improve how the model handles shopping questions. The live assistant still retrieves product facts from the catalog for every request. Shipping and return answers come from policy files. Changing a price or policy does not require another fine-tuning run.
-
-I chose a quantized local model so the demo does not depend on a paid inference API.
+I used fine-tuning to improve how the model handles shopping questions. The live assistant still retrieves product facts from the catalog for every request. Shipping and return answers come from policy files. 
 
 ## Training
 
